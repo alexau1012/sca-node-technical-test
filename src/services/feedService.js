@@ -28,12 +28,42 @@ exports.getFeed = async (url) => {
 }
 
 exports.getSortedEpisodes = (episodes, order) => {
-    const sortedEpisodes = episodes.sort((a, b) => a.publishedDate - b.publishedDate);
+    // Sort in ascending order
+    const sortedEpisodes = episodes.sort((a, b) => {
+        const dateA = convertStringToDateAEST(a.publishedDate);
+        const dateB = convertStringToDateAEST(b.publishedDate);
+        return dateA - dateB;
+    });
+
     if (order === 'asc') {
-        return sortedEpisodes.reverse();
-    } else if (order === 'dsc') {
         return sortedEpisodes;
+    } else if (order === 'dsc') {
+        return sortedEpisodes.reverse();
     } else {
-        throw new Error('Invalid sort order specified');
+        throw Error('Invalid sort order specified');
+    }
+}
+
+const convertStringToDateAEST = (dateString) => {
+    // Converts a string with the format of "21/08/2021, 4:38:00 pm AEST"
+    // into a Date. Use cautiously as this conversion does not take into 
+    // account of timezone!
+
+    const regex = RegExp(/^(\d{2})\/(\d{2})\/(\d{4}), ([0-9]+)\:(\d{2})\:(\d{2}) ([a-z]+) AEST/);
+
+    try {
+        const dateArray = regex.exec(dateString);
+
+        const date = dateArray[1];
+        const month = dateArray[2];
+        const year = dateArray[3];
+        const period = dateArray[7];
+        const hour = (period === 'am') ? dateArray[4] : parseInt(dateArray[4]) + 12;
+        const minute = dateArray[5];
+        const second = dateArray[6];
+    
+        return new Date(`${year}-${month}-${date} ${hour}:${minute}:${second}`);
+    } catch (error) {
+        throw Error(`Invalid published date: ${dateString}`);
     }
 }
