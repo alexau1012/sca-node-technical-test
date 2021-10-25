@@ -16,6 +16,10 @@ exports.getSorted = async (req, res, next) => {
     try {
         const order = req.query.order;
 
+        if (!order) {
+            next(Error('Sort order is not specified'));
+        }
+
         const rssFeed = await feedService.getFeed(rssFeedPageUrl);
 
         const rssFeedEpisodes = await feedService.getSortedEpisodes(rssFeed.episodes, order);
