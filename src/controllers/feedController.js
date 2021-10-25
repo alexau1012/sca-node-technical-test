@@ -22,9 +22,9 @@ exports.getSorted = async (req, res, next) => {
 
         const rssFeed = await feedService.getFeed(rssFeedPageUrl);
 
-        const rssFeedEpisodes = await feedService.getSortedEpisodes(rssFeed.episodes, order);
+        const sortedEpisodes = feedService.getSortedEpisodes(rssFeed.episodes, order);
 
-        rssFeed.episodes = rssFeedEpisodes;
+        rssFeed.episodes = sortedEpisodes;
 
         return res.json(rssFeed);
     } catch (error) {
